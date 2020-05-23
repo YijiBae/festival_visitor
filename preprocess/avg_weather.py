@@ -156,5 +156,5 @@ def get_abs_weather():
                 for j in sheet:
                     for name in range(82):
                         if(j[name] in location or location in j[name]):
-                            print(avg_wea.cell(row=name,column=start_month+2).value)
+                            print(weather_sheet.cell(row=name,column=start_month+2).value)
                             break
