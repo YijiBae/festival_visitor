@@ -10,6 +10,7 @@ import re
 from openpyxl import load_workbook
 from collections import Counter
 import os
+from openpyxl import load_workbook
 지역코드 =[]
 지역이름 = []
 Jen = []
@@ -126,3 +127,34 @@ for i in Nov:
 print("===============================12=======")
 for i in Dec:
     print(i)
+
+
+# 평균값-실제값 
+def get_abs_weather():
+    #1) 엑셀을 열어 행사 데이터를 꺼낸다. 
+    lists = load_workbook('data_fesitival.xlsx')
+    avg_wea = load_workbook('평균날씨.xlsx')
+    year = ["2017년"]
+
+    #['2007년', '2008년', '2009년', '2010년', '2011년', '2012년', '2013년', '2014년', '2015년', '2016년', '2017년']
+
+    #행사 데이터 중 행사일을 읽는다. 
+    for y in year:
+        sheet = lists[y]
+        weather_sheet = avg_wea[y]
+        count_for_date = 1
+        for i in sheet:
+            count_for_date += 1
+            # 셋째행까지는 무의미한 데이터가 삽입되어 있어 생략하기 위함이다. 
+            if(count_for_date > 1 and i[8].value != None):
+                location = i[2]                    # 서울  
+                
+                date = i[8].value                  #"2.27~5.6"
+                date = date.split(".")            #["2", "27~5", "6"]
+                start_month = date[0]
+                
+                for j in sheet:
+                    for name in range(82):
+                        if(j[name] in location or location in j[name]):
+                            print(avg_wea.cell(row=name,column=start_month+2).value)
+                            break
