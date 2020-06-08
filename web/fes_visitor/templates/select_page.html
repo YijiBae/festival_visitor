@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang= 'en'>
+    <head>
+        <meta charset = "UTF-8">
+        <title>select_option</title>
+    </head>
+    <body>
+        <form action = "" method="POST">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <button href = "{% url 'result' %}" type="submit" class ="btn btn-primary">  저장 </button>
+        </form>
+    </body>
+</html>
