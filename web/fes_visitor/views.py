@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from fes_visitor.forms import Form
-from fes_visitor.forms import Option
+from fes_visitor.forms import Option, Results
 import pandas as pd
 from pandas import DataFrame as df
 
@@ -17,7 +17,7 @@ def calc_day(start_year, start_month, start_day, end_year, end_month, end_day):
 def calc_else(fes_name):
     #엑셀파일 불러오기
     count = 0
-    lists = load_workbook('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/web/fes_visitor/통합축제데이터.xlsx')
+    lists = load_workbook('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/통합축제데이터.xlsx')
     sheet = lists['Sheet1']
     for i in sheet: 
         count += 1
@@ -36,7 +36,7 @@ def calc_else(fes_name):
     return KTX, 평균기온절대값, 최저기온절대값, 최고기온절대값, 평균운량, positive, neutral, 평균방문객
 
 def regression_model(test_value):
-    festival_df = pd.read_excel('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/web/fes_visitor/통합축제데이터.xlsx', header = 0, sheet_name = 'Sheet1')
+    festival_df = pd.read_excel('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/통합축제데이터.xlsx', header = 0, sheet_name = 'Sheet1')
     #있는 것 만으로 감정분석
     sentiment = festival_df.dropna(axis=0)
     x_train = sentiment[['기간', "KTX역",'평균기온 절대값', '최저기온 절대값', '최고기온 절대값','평균운량', 'positive', 'neutral', '평균방문객']]
@@ -48,7 +48,7 @@ def regression_model(test_value):
     return y_predict
 
 def bass_model(fes_name, start_year):
-    lists = load_workbook('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/web/fes_visitor/연속누적방문객.xlsx')
+    lists = load_workbook('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/연속누적방문객.xlsx')
     sheet = lists['BASS']
     count = 0
     check = -1
@@ -120,14 +120,18 @@ def select_page(request):
             regression_result = regression_model(test_value)
             bass_result = bass_model(fes_name, start_year)
             final_result = hybrid_model(regression_result, bass_result)
+            result_list = Results(total_visitor = final_result)
+            result_list.save()
             print(final_result)
             form.save()
+            return render(request, 'select_page.html', {'form':form, 'results': result_list})
     else:
         form = Form()
     
-    return render(request, 'select_page.html', {'form':form} )
+    return render(request, 'select_page.html', {'form':form})
 
 def result_page(request):
     # DB에서 결과값 가져오기
-    results = Option.objects.all()
-    return render(request, 'result_page.html' , {'results': results})
+    options = Option.objects.all()
+    results= Results.objects.all()
+    return render(request, 'result_page.html' , {'options': options, 'results': results})

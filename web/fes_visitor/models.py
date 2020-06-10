@@ -11,3 +11,7 @@ class Option(models.Model):
     fes_end_month = models.IntegerField(default = 0)
     fes_end_day = models.IntegerField(default = 0)
 
+
+class Results(models.Model):
+    objects = models.Manager()
+    total_visitor = models.FloatField(default=0.0)

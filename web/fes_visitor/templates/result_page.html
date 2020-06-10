@@ -6,8 +6,11 @@
     </head>
     <body>
         <li>축제명|시작달|시작일|종료달|종료일</li>
-        {% for i in results %}
+        {% for i in options %}
         <li> {{ i.fes_name }} | {{ i.fes_start_month}} | {{ i.fes_start_day}} | {{ i.fes_end_month}} |{{ i.fes_end_day}}</li>
+        {% endfor %}
+        {% for j in results %}
+            {{j.total_visitor}}
         {% endfor %}
     </body>
 </html>
