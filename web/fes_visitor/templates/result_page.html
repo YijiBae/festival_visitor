@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang= 'en'>
     <head>
@@ -5,12 +6,18 @@
         <title>results</title>
     </head>
     <body>
-        <li>축제명|시작달|시작일|종료달|종료일</li>
+        축제명|시작달|시작일|종료달|종료일 <br>
         {% for i in options %}
-        <li> {{ i.fes_name }} | {{ i.fes_start_month}} | {{ i.fes_start_day}} | {{ i.fes_end_month}} |{{ i.fes_end_day}}</li>
+        {{ i.fes_name }} | {{ i.fes_start_month}} | {{ i.fes_start_day}} | {{ i.fes_end_month}} |{{ i.fes_end_day}}
         {% endfor %}
         {% for j in results %}
-            {{j.total_visitor}}
+            예측 축제인원: {{j.total_visitor}} <br>
+            날씨 정보 <br>
+            평균기온: {{ j.평균기온}}  <br>
+            최저기온: {{j.최저기온}} <br>
+            최고기온: {{j.최고기온}} <br>
         {% endfor %}
+
+        <img src= "{% static 'fes_visitor.png' %}" >
     </body>
 </html>

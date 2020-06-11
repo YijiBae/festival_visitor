@@ -5,10 +5,11 @@
         <title>select_option</title>
     </head>
     <body>
-        <form action = "" method="POST">
-            {{ form.as_p }}
+        
+        <form method="POST">
             {% csrf_token %}
-            <button href = "{% url 'result' %}" type="submit" class ="btn btn-primary">  저장 </button>
+            {{ form.as_p }}
+            <button type="submit" class ="btn btn-primary">  저장 </button>
         </form>
     </body>
 </html>

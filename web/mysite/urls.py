@@ -15,10 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from fes_visitor.views import select_page, result_page
+from fes_visitor.views import select_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('select_page/', select_page, name = 'select_page'), 
-    path('result/', result_page, name="result"),
+    path('', select_page, name = 'select_page'), 
 ]

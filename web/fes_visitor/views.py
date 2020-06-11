@@ -6,6 +6,8 @@ from pandas import DataFrame as df
 
 import datetime
 from openpyxl import load_workbook
+import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
 def calc_day(start_year, start_month, start_day, end_year, end_month, end_day):
@@ -27,13 +29,17 @@ def calc_else(fes_name):
                 KTX = i[11].value
                 neutral = i[21].value
                 positive = i[22].value
+                평균기온 = i[13].value
+                최저기온 = i[17].value
+                최고기온 = i[14].value
                 평균기온절대값 = i[24].value
                 최저기온절대값 = i[25].value
                 최고기온절대값 = i[26].value
                 평균운량 = i[18].value
                 평균방문객 = i[27].value
+
                 break
-    return KTX, 평균기온절대값, 최저기온절대값, 최고기온절대값, 평균운량, positive, neutral, 평균방문객
+    return KTX, 평균기온절대값, 최저기온절대값, 최고기온절대값, 평균운량, positive, neutral, 평균방문객, 평균기온, 최저기온, 최고기온
 
 def regression_model(test_value):
     festival_df = pd.read_excel('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/통합축제데이터.xlsx', header = 0, sheet_name = 'Sheet1')
@@ -97,7 +103,29 @@ def hybrid_model(regression_result, bass_result):
     final_result = (0.6*bass_result + 0.4* regression_result)
     return final_result
 
+
+def draw_visitor(fes_name):
+    lists = load_workbook('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/연속누적방문객.xlsx')
+    sheet = lists['Sheet1']
+    count = 0
+    year = np.array([2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017])
+    check = -1
+    for i in sheet: 
+        count += 1
+        if(count > 1):
+            if(i[0].value == fes_name):
+                visitor = np.array([i[1].value, i[2].value, i[3].value, i[4].value, i[5].value, i[6].value, i[7].value, i[8].value, i[9].value, i[10].value, i[11].value])
+                print(visitor)
+                break
+    fig = plt.gcf()
+    plt.plot(year, visitor,marker = 'o')
+    plt.title('yearly visitor')
+    plt.draw()
+    file_name = "C:\\Users\\samsung\\Desktop\\2020-1\\데이터캡스톤디자인\\지역축제 방문객 예측\\프로젝트\\git\\web\\fes_visitor\\static\\fes_visitor.png"
+    fig.savefig(file_name, dpi=fig.dpi)
+
 def select_page(request):
+    print(request.method)
     if request.method == "POST":
         form = Form(request.POST)
         # form의 내용이 유효하다면 DB에 저장한다. 
@@ -113,25 +141,24 @@ def select_page(request):
 
             day_term = calc_day(start_year, start_month, start_day, end_year, end_month, end_day)
             print(day_term)
-            KTX, 평균기온절대값, 최저기온절대값, 최고기온절대값, 평균운량, positive, neutral, 평균방문객 = calc_else(fes_name)
+            KTX, 평균기온절대값, 최저기온절대값, 최고기온절대값, 평균운량, positive, neutral, 평균방문객, 평균기온, 최저기온, 최고기온 = calc_else(fes_name)
             test_value = df( data = {'기간': [day_term], "KTX역": [KTX],  '평균기온 절대값': [평균기온절대값], '최저기온 절대값': [최저기온절대값], '최고기온 절대값': [최고기온절대값],'평균운량': [평균운량], 'positive': [positive], 'neutral': [neutral], '평균방문객': [평균방문객]})
             test_value
 
             regression_result = regression_model(test_value)
             bass_result = bass_model(fes_name, start_year)
             final_result = hybrid_model(regression_result, bass_result)
-            result_list = Results(total_visitor = final_result)
+            result_list = Results(total_visitor = final_result, 평균기온 = 평균기온, 최저기온 = 최저기온, 최고기온= 최고기온)
             result_list.save()
-            print(final_result)
             form.save()
-            return render(request, 'select_page.html', {'form':form, 'results': result_list})
-    else:
-        form = Form()
-    
-    return render(request, 'select_page.html', {'form':form})
 
-def result_page(request):
-    # DB에서 결과값 가져오기
-    options = Option.objects.all()
-    results= Results.objects.all()
-    return render(request, 'result_page.html' , {'options': options, 'results': results})
+            draw_visitor(fes_name)
+
+            options = Option.objects.all()
+            results= Results.objects.all()
+            return render(request, 'result_page.html' , {'options': options, 'results': results})
+    else:
+        print("something wrong")
+        form = Form()
+        return render(request, 'select_page.html', {'form':form})
+    
