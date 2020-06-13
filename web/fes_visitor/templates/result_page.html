@@ -6,12 +6,13 @@
         <title>results</title>
     </head>
     <body>
-        축제명|시작달|시작일|종료달|종료일 <br>
         {% for i in options %}
-        {{ i.fes_name }} | {{ i.fes_start_month}} | {{ i.fes_start_day}} | {{ i.fes_end_month}} |{{ i.fes_end_day}}
+        축제명: {{ i.fes_name }} <br>
+        시작: {{ i.fes_start_year }}년 {{ i.fes_start_month}}월 {{ i.fes_start_day}}일 <br>
+        종료: {{ i.fes_end_year}}년 {{ i.fes_end_month}}월 {{ i.fes_end_day}}일 <br>
         {% endfor %}
         {% for j in results %}
-            예측 축제인원: {{j.total_visitor}} <br>
+            예측 축제인원: {{j.total_visitor}} <br> <br>
             날씨 정보 <br>
             평균기온: {{ j.평균기온}}  <br>
             최저기온: {{j.최저기온}} <br>
