@@ -1,15 +1,40 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang= 'en'>
     <head>
         <meta charset = "UTF-8">
         <title>select_option</title>
+        <link rel="stylesheet" href="{% static 'css/select_page.css' %}">
     </head>
     <body>
-        
+    <div class = "outer_box">
         <form method="POST">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class ="btn btn-primary">  저장 </button>
+            <div class = "outer_box">
+                <img src = "{% static 'background.JPG' %}" width="1125" height="260">
+                <h1>지역축제 방문객 예측</h1>
+                <div class = "select_box">
+                    <div>
+                    지역축제이름  <br>          
+                        <select name="fes_name" style="width:176px;height:52px;">
+                            <option value="">축제선택</option>
+                            <option value="광안리어방축제">광안리어방축제</option>
+                            <option value="강경젓갈축제">강경젓갈축제</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                    <div>
+                    시작날짜 
+                    <input class = "select_date" type='date' name='start_date'/>
+                    </div>
+                    <div>
+                      종료날짜 
+                     <input class = "select_date" type='date' name='end_date'/>
+                    </div>
+
+                    <button type="submit" class ="btn btn-primary">  저장 </button>
+                </div>
+            </div>
         </form>
     </body>
 </html>

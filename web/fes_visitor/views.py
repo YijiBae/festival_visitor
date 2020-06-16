@@ -414,66 +414,75 @@ def select_page(request):
     if request.method == "POST":
         form = Form(request.POST)
         # form의 내용이 유효하다면 DB에 저장한다. 
-        if form.is_valid():
-            options = Option.objects.all()
-            results= Results.objects.all()    
-            for option in options:
-                option.delete()
-            for result in results:
-                result.delete()
+        options = Option.objects.all()
+        results= Results.objects.all()    
+        for option in options:
+            option.delete()
+        for result in results:
+            result.delete()
 
-            fes_name = request.POST.get('fes_name')
-            name = form.cleaned_data['fes_name']
-            start_year = form.cleaned_data['fes_start_year']
-            start_month = form.cleaned_data['fes_start_month']
-            start_day = form.cleaned_data['fes_start_day']
-            end_year = form.cleaned_data['fes_end_year']
-            end_month = form.cleaned_data['fes_end_month']
-            end_day = form.cleaned_data['fes_end_day']
+        fes_name = request.POST.get('fes_name')
+        print(fes_name)
+        start_date = request.POST.get('start_date')
+        print(start_date)
+        end_date = request.POST.get('end_date')
 
-            day_term = calc_day(start_year, start_month, start_day, end_year, end_month, end_day)
-            print(day_term)
-            KTX, location_code, neutral, positive = calc_else(fes_name)
+        
+        print(end_date)
 
-            infos = []
-            ## 날씨 정보 수집
-            if start_month != end_month:
-                # 2)-1 시작월을 크롤링한다. (start_month)
-                crawling_weather(location_code, start_year, start_month)
-                # 2)-2시작일부터 해당 월의 마지막까지 가져온다.
-                start_weather(infos, start_day)
-                # 2)-3 종료 월을 크롤링한다.
-                crawling_weather(location_code, start_year, end_month)
-                # 2)-4 종료 일 전까의 데이터를 가져온다.
-                end_weather(infos, end_day)
-                calc(infos)
+        start_year = int(start_date[0:4])
+        start_month = int(start_date[5:7])
+        start_day = int(start_date[8:11])
 
-            else:
-                # 3)-1 행사 월을 크롤링한다. (start_month)
-                crawling_weather(location_code, start_year, start_month)
-                # 3)-3 시작일부터 행사 일 수까지 데이터를 크롤링한다. 
-                same_weather(infos, day_term)
-                평균기온, 최고기온, 최저기온, 평균운량, 평균강수량 = calc(infos)
+        end_year = int(end_date[0:4])
+        end_month = int(end_date[5:7])
+        end_day = int(end_date[8:11])
 
-            평균기온절대값 = avg_weather_crawling(2019, location_code, start_month, 평균기온)
-            최저기온절대값 = low_weather_crawling(2019, location_code, start_month, 최저기온)
-            최고기온절대값 = high_weather_crawling(2019, location_code, start_month, 최고기온)
-            
-            test_value = df( data = {'기간': [day_term], "KTX역": [KTX],  '평균기온 절대값': [평균기온절대값], '최저기온 절대값': [최저기온절대값], '최고기온 절대값': [최고기온절대값],'평균운량': [평균운량], 'positive': [positive], 'neutral': [neutral]})
-            
+        option_list = Option(fes_name = fes_name, fes_start_year = start_year, fes_start_month = start_month, fes_start_day= start_day, fes_end_year= end_year, fes_end_month = end_month, fes_end_day = end_day)
+        option_list.save()
 
-            regression_result = regression_model(test_value)
-            bass_result = bass_model(fes_name, start_year)
-            final_result = hybrid_model(regression_result, bass_result)
-            result_list = Results(total_visitor = final_result, 평균기온 = 평균기온, 최저기온 = 최저기온, 최고기온= 최고기온)
-            result_list.save()
-            form.save()
+        day_term = calc_day(start_year, start_month, start_day, end_year, end_month, end_day)
+        print(day_term)
+        KTX, location_code, neutral, positive = calc_else(fes_name)
 
-            draw_visitor(fes_name)
+        infos = []
+        ## 날씨 정보 수집
+        if start_month != end_month:
+            # 2)-1 시작월을 크롤링한다. (start_month)
+            crawling_weather(location_code, start_year, start_month)
+            # 2)-2시작일부터 해당 월의 마지막까지 가져온다.
+            start_weather(infos, start_day)
+            # 2)-3 종료 월을 크롤링한다.
+            crawling_weather(location_code, start_year, end_month)
+            # 2)-4 종료 일 전까의 데이터를 가져온다.
+            end_weather(infos, end_day)
+            calc(infos)
 
-            options = Option.objects.all()
-            results= Results.objects.all()
-            return render(request, 'result_page.html' , {'options': options, 'results': results})
+        else:
+            # 3)-1 행사 월을 크롤링한다. (start_month)
+            crawling_weather(location_code, start_year, start_month)
+            # 3)-3 시작일부터 행사 일 수까지 데이터를 크롤링한다. 
+            same_weather(infos, day_term)
+            평균기온, 최고기온, 최저기온, 평균운량, 평균강수량 = calc(infos)
+
+        평균기온절대값 = avg_weather_crawling(2019, location_code, start_month, 평균기온)
+        최저기온절대값 = low_weather_crawling(2019, location_code, start_month, 최저기온)
+        최고기온절대값 = high_weather_crawling(2019, location_code, start_month, 최고기온)
+        
+        test_value = df( data = {'기간': [day_term], "KTX역": [KTX],  '평균기온 절대값': [평균기온절대값], '최저기온 절대값': [최저기온절대값], '최고기온 절대값': [최고기온절대값],'평균운량': [평균운량], 'positive': [positive], 'neutral': [neutral]})
+        
+
+        regression_result = regression_model(test_value)
+        bass_result = bass_model(fes_name, start_year)
+        final_result = hybrid_model(regression_result, bass_result)
+        result_list = Results(total_visitor = final_result, 평균기온 = 평균기온, 최저기온 = 최저기온, 최고기온= 최고기온)
+        result_list.save()
+     
+        draw_visitor(fes_name)
+
+        options = Option.objects.all()
+        results= Results.objects.all()
+        return render(request, 'result_page.html' , {'options': options, 'results': results})
     else:
         print("something wrong")
         form = Form()
