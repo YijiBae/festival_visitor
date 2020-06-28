@@ -21,11 +21,54 @@ from openpyxl import load_workbook
 from collections import Counter
 import os
 
+
 def calc_day(start_year, start_month, start_day, end_year, end_month, end_day):
     start_date = datetime.datetime(start_year, start_month, start_day)
     end_date = datetime.datetime(end_year, end_month, end_day)
     day_term = (end_date - start_date).days
     return day_term
+
+def draw_tweet(neutral, positive, fes_name):
+    count = 0
+    lists = load_workbook('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/data_festival_tweet.xlsx')
+    sheet = lists['Sheet1']
+    for i in sheet:
+        count += 1
+        if(count > 1):
+            if(i[0].value == fes_name):
+                year = np.array([2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017])
+                tweet = np.array([i[1].value, i[2].value, i[3].value, i[4].value, i[5].value, i[6].value, i[7].value, i[8].value, i[9].value, i[10].value, i[11].value])
+                fig = plt.gcf()
+                plt.title('tweet counts')
+                plt.xlabel('year')
+                plt.ylabel('counts')
+                plt.bar(year, tweet)
+                plt.draw()
+                file_name = "C:\\Users\\samsung\\Desktop\\2020-1\\데이터캡스톤디자인\\지역축제 방문객 예측\\프로젝트\\git\\web\\fes_visitor\\static\\tweet.png"
+                fig.savefig(file_name, dpi=fig.dpi)
+                
+
+                negative = 1- float(positive) - float(neutral)
+                a = np.array([[ round(float(positive), 3) , round(float(neutral), 3), round(negative,3) ] ])
+                df = pd.DataFrame(a, columns= ['positive', 'neutral', 'negative'])
+                colors = ['green', 'orange', 'red']
+                ax = df.plot.barh(color = colors, stacked=True, figsize = (9, 1.5), edgecolor = "none")
+
+                fig1 = plt.gcf() 
+                for p in ax.patches:
+                    left, bottom, width, height = p.get_bbox().bounds
+                    ax.annotate((width), xy=(left+width/2, bottom+height/2), ha='center', va='center', fontsize = 18)
+                plt.legend(loc='upper center', ncol=3, bbox_to_anchor=(0.5, 1), edgecolor = "none")
+                plt.sca(ax)
+                plt.box(False)
+                plt.axis('off')
+                plt.subplots_adjust(left = 0, bottom = 0, right = 1, top = 1, hspace = 0, wspace = 0)
+                plt.draw()
+                fig1.savefig("C:\\Users\\samsung\\Desktop\\2020-1\\데이터캡스톤디자인\\지역축제 방문객 예측\\프로젝트\\git\\web\\fes_visitor\\static\\sentiment.png")
+                plt.close(fig1)    
+                break    
+
+                
 
 def calc_else(fes_name):
     #엑셀파일 불러오기
@@ -41,8 +84,11 @@ def calc_else(fes_name):
                 local_code = i[28].value
                 neutral = i[21].value
                 positive = i[22].value
+                draw_tweet(neutral, positive, fes_name)
                 break
     return KTX, local_code, neutral, positive
+
+
 def regression_model(test_value):
     festival_df = pd.read_excel('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/통합축제데이터.xlsx', header = 0, sheet_name = 'Sheet1')
     #있는 것 만으로 감정분석
@@ -135,15 +181,19 @@ def bass_model(fes_name, start_year):
                 break
 
 def hybrid_model(regression_result, bass_result):
-    final_result = (0.6*bass_result + 0.4* regression_result)
+    print("bass: ", bass_result)
+    print("regression: ",  regression_result)
+    final_result = (0.99*bass_result + 0.01* regression_result)
     return final_result
 
 
 def draw_visitor(fes_name):
     lists = load_workbook('C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/연속누적방문객.xlsx')
     sheet = lists['Sheet1']
+    bass_sheet =  lists["BASS"]
     count = 0
     year = np.array([2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017])
+    bass_year = np.array([2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020])
     check = -1
     for i in sheet: 
         count += 1
@@ -152,9 +202,17 @@ def draw_visitor(fes_name):
                 visitor = np.array([i[1].value, i[2].value, i[3].value, i[4].value, i[5].value, i[6].value, i[7].value, i[8].value, i[9].value, i[10].value, i[11].value])
                 print(visitor)
                 break
+    for j in bass_sheet:
+        count += 1
+        if(count > 1):
+            if(j[0].value == fes_name):
+                bass_visitor = np.array([j[1].value, j[2].value, j[3].value, j[4].value, j[5].value, j[6].value, j[7].value, j[8].value, j[9].value, j[10].value, j[11].value, j[12].value, j[13].value, j[14].value])
+                break
     fig = plt.gcf()
-    plt.plot(year, visitor,marker = 'o')
+    plt.plot(year, visitor, label='actual visitor',  marker = 'o')
+    plt.plot(bass_year, bass_visitor,label='predicted visitor',  marker = 'o')
     plt.title('yearly visitor')
+    plt.legend(loc = 'upper right')
     plt.draw()
     file_name = "C:\\Users\\samsung\\Desktop\\2020-1\\데이터캡스톤디자인\\지역축제 방문객 예측\\프로젝트\\git\\web\\fes_visitor\\static\\fes_visitor.png"
     fig.savefig(file_name, dpi=fig.dpi)
@@ -162,6 +220,11 @@ def draw_visitor(fes_name):
 def crawling_weather(location_code, year, month):
     #혹여나 이전에 에 있던 파일 지우기
     os.remove("C:/Users/samsung/Desktop/2020-1/데이터캡스톤디자인/지역축제 방문객 예측/프로젝트/weather_django.txt")
+    if((year > 2020 and month > 6) or year >= 2021):
+        year = 2019
+        print("year: ", year)
+
+
     url = "https://www.weather.go.kr/weather/climate/past_cal.jsp?stn={}&yy={}&mm={}&obs=1&x=18&y=6".format(location_code, year, month)
 
     #크롬드라이버 설치 위치를 입력해준다. 

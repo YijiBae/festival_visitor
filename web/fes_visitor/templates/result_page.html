@@ -18,7 +18,14 @@
             최저기온: {{j.최저기온}} <br>
             최고기온: {{j.최고기온}} <br>
         {% endfor %}
+        <br>
+        방문객 예측 그래프<br>
+        <img src= "{% static 'fes_visitor.png' %}" ><br>
 
-        <img src= "{% static 'fes_visitor.png' %}" >
+        tweet 개수 년도별 그래프<br>
+        <img src= "{% static 'tweet.png' %}" ><br>
+
+        감정분석 그래프<br>
+        <img src= "{% static 'sentiment.png' %}" ><br>
     </body>
 </html>
