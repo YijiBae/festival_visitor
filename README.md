@@ -19,7 +19,8 @@
     (축제 등급, 세부 지역, 축제이름 통일)
   - 축제 진행 중인 날짜에 맞춰 날씨 크롤링 및 삽입
   - 세부지역을 기준으로 KTX 유무 연결 (유:1, 무:0)
-- 감정분석
+- 감정분석   
+  https://github.com/park1200656/KnuSentiLex
   - tweet content 형태소 분류(Komoran)
   - 감정분석 사전도 형태소 분류 진행 (Kpmoran)
   - 자/모음으로 나타낸 감정표현 글자 처리
@@ -38,6 +39,7 @@
    => 단순히 회귀분석으로 진행하면 정확도가 낮아질 수밖에 없다. 
    => 훈련세트와 테스트 세트 둘다 R-sqare 값이 적다 == 과소적합    
  #### 2) 라쏘 
+   https://bskyvision.com/193
    : feature 선택이 자동으로 이뤄진다.    
    1) Alpha: 계수를 0으로 보낼지를 조절하는 매개변수    
    2) Max_iter: 반복 실행하는 최대횟수
@@ -46,11 +48,14 @@
    alpha값의 변화에 따라 선택되는 특성의 수가 달라진다.
    alpha를 기본으로 설정해도 최대의 특성의 수를 가지게 되어 변함이 없다. 
    => 문제점: 특성(feature)의 수가 적다.      
- #### 3) bass 모형    
+ #### 3) bass 모형 
+   https://medium.com/@rkaahean/the-bass-diffusion-model-a-gentle-introduction-i-b9b4fe3cd94e  
      : 상품이나 서비스의 수요량을 추정하는 확산모형으로 수요량의 패턴을 S자 형태의 곡선으로 추정하는 모형      
       이전의 존재하는 값이 3개 이상이여야 Bass 모형을 이용해 값을 추정할 수 있다. => 추정 불가능한 값의 BASS weight을  0으로 설정한다.     
       BASS 모형을 이용해 값을 추정할 때 RMSE 값이 가장 적은 weigh를 선택한다. => 0.6일 때 가장 작은 RMSE 값을 가진다
 #### 4) Hybrid 모형    
+   http://kiss.kstudy.com/thesis/thesis-view.asp?key=3624376
+   
    : 앞서 계산한 weigh를 이용해 hybrid 모형을 계산한다. 
    ![image](https://user-images.githubusercontent.com/52802393/83742106-f93ab900-a693-11ea-939d-834b96bae5cc.png)
          정확도가 0.7로 향상되었다. 
@@ -76,7 +81,7 @@
 
 
 ### References 
-권성수, 축제방문 수요 영향 요인(2017)   
-한국화관광연구원 보고서(2007)   
-유영준, 중력모형에 의한 지역축제 결정인자 (2003)[4] 김현, 지역축제 수요의 추정과 시장세분화에 관한 연구(2008)    
-bass 모형 https://medium.com/@rkaahean/the-bass-diffusion-model-a-gentle-introduction-i-b9b4fe3cd94e   
+[1]권성수, 축제방문 수요 영향 요인(2017)   
+[2]한국화관광연구원 보고서(2007)   
+[3]유영준, 중력모형에 의한 지역축제 결정인자 (2003)   
+[4] 김현, 지역축제 수요의 추정과 시장세분화에 관한 연구(2008)    
